@@ -135,9 +135,9 @@ publishdir = "../public"
       # 是否使用目录
       enable = true
       # LoveIt 新增 | 0.2.9 是否保持使用文章前面的静态目录
-      keepStatic = true
+      # keepStatic = true
       # 是否使侧边目录自动折迭展开
-      auto = true
+      auto = false
     # LoveIt 新增 | 0.2.0 代码配置
     [params.page.code]
       # 是否显示代码块的复制按钮
@@ -222,7 +222,7 @@ publishdir = "../public"
         clientSecret = ""
       # Valine 评论系统设置
       [params.page.comment.valine]
-        enable = true
+        enable = false
         appId = "pUNgWdq63TETAke7FQXlzsGA-MdYXbMMI"
         appKey = "j1XWiWeAW0TJ4gvQbDgyPiTO"
         placeholder = "评论一下"
