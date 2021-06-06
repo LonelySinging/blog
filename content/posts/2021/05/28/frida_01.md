@@ -2,8 +2,8 @@
 title: "使用Frida完成android的hook"
 date: 2021-05-28T16:13:23+08:00
 draft: false
-tags: ["逆向","HOOK","Frida"]
-categories: ["逆向"]
+tags: ["反编译","HOOK","Frida","Android"]
+categories: ["逆向分析"]
 ---
 
 
