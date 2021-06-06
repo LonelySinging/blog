@@ -59,7 +59,7 @@ categories: ["逆向分析"]
 
 添加这三个条目的原因是为了能让`Xposed Manager`认识开发的模块。此时编译安装之后，`Xposeed Manger`就能看到这个模块了
 
-![image-20210606141722656](http://qiniusave.5cser.com/img/image-20210606141722656.png)
+![image-20210606141722656](https://qiniusave.5cser.com/img/image-20210606141722656.png)
 
 需要说明的是，如果一开始创建项目的时候没有`Activity`，格式可能和我图片中的不一样，所以这也是我创建了一个带`Activity`的项目
 
@@ -75,7 +75,7 @@ provided  'de.robv.android.xposed:api:82'
 provided  'de.robv.android.xposed:api:82:sources'
 ```
 
-![image-20210606141342040](http://qiniusave.5cser.com/img/image-20210606141342040.png)
+![image-20210606141342040](https://qiniusave.5cser.com/img/image-20210606141342040.png)
 
 添加完毕之后，`Android studio`会提示你`Sync`，点击之后，就会自动从仓库下载对应的`jar`到项目中，很是方便。(但愿你开了代理)
 
@@ -89,7 +89,7 @@ provided  'de.robv.android.xposed:api:82:sources'
 
 新建代码文件，此处我在`入口类同级目录`创建了一个类文件，取名`HookTest`，它是继承于`IXposedHookLoadPackage`接口的，这部分代码和可以从网上教程中复制(指导入的库名称以及`IXposedHookLoadPackage`这个很长的接口名称)
 
-![image-20210606141916216](http://qiniusave.5cser.com/img/image-20210606141916216.png)
+![image-20210606141916216](https://qiniusave.5cser.com/img/image-20210606141916216.png)
 
 上图的最终代码我会提供到最后，并且做出解释
 
@@ -167,7 +167,7 @@ public class HookTest implements IXposedHookLoadPackage {
 
 `Xposed`模块在会从入口配置`xposed_init`文件里找入口类，在`assets`创建一个`xposed_init`文件，如果没有`assets`文件夹，则自行创建
 
-![image-20210606145459689](http://qiniusave.5cser.com/img/image-20210606145459689.png)
+![image-20210606145459689](https://qiniusave.5cser.com/img/image-20210606145459689.png)
 
 其内容是上面编写的`Hook`类
 
@@ -175,7 +175,7 @@ public class HookTest implements IXposedHookLoadPackage {
 
 ## 结果
 
-![image-20210606150735724](http://qiniusave.5cser.com/img/image-20210606150735724.png)
+![image-20210606150735724](https://qiniusave.5cser.com/img/image-20210606150735724.png)
 
 在`储存目录`下能看到命名为`aaaa.txt`的文件，其中有所有启动的进程，以及`Shaft`得到的所有图片的链接
 
