@@ -2,3 +2,37 @@
 // Custom style
 // 自定义样式
 // ==============================
+
+body{
+	background-image:url(https://qiniusave.5cser.com/img/bg3.jpg);
+	// background-position:right;
+	background-position:100%,-40%;
+	background-attachment:fixed;
+	background-repeat:no-repeat;
+}
+
+.wrapper main .container {
+    padding: 0 1rem;
+    background-color: #ffffffbf;
+}
+
+[theme=dark] .wrapper main .container {
+    padding: 0 1rem;
+    background-color: #000000bf;
+}
+
+h1 {
+    font-size: 2em;
+    margin: 1.20em 0em .8em 0em;
+}
+
+.single .content>h2>.header-mark::before, .single .content>h3>.header-mark::before, .single .content>h4>.header-mark::before, .single .content>h5>.header-mark::before, .single .content>h6>.header-mark::before {
+    content: "┃";
+    margin-right: .3125rem;
+    color: #2d96bd;
+}
+
+.single .content>h2>.header-mark::before {
+    content: "▋";
+}
+
