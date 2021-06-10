@@ -1,8 +1,25 @@
+
+
 {{- define "content" -}}
     {{- $params := .Scratch.Get "params" -}}
     {{- $profile := .Site.Params.home.profile -}}
     {{- $posts := .Site.Params.home.posts -}}
-
+	
+	<style>
+	.app-bg{
+		position:absolute
+		
+		bottom: 0;
+		right: 0;
+		background: url(https://qiniusave.5cser.com/img/bg3.jpg) ;
+		
+	}
+	</style>
+	<div class="app-bg">
+	
+	</div>
+	
+	
     <div class="page home"{{ if ne $posts.enable false }} posts{{ end }}>
         {{- /* Profile */ -}}
         {{- if ne $profile.enable false -}}
@@ -17,6 +34,8 @@
                 </div>
             </div>
         {{- end -}}
+		
+		
 
         {{- /* Posts */ -}}
         {{- if ne $posts.enable false | and .Site.RegularPages -}}
