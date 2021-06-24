@@ -196,6 +196,369 @@ adb forward tcp:27043 tcp:27043
 
 现在明确了目标，所以接下来需要关注的部分就是软件下载图片的部分，以及双击会执行的代码。至于自动更新，一开始是没啥头绪的，软件的入口并不是很明确，所以我不准备按照执行流程分析了。
 
+### 相关目录分析
+
+我一般在具体分析软件之前，会先去看看它的缓存目录，或者配置文件什么的地方，有时候能够发现非常有用的线索。如何发现相关目录呢？一般来说，重要的目录就是`Android/data/包名/`这样的目录，如果目标软件在`/sdcard/`下面也建立的文件夹的话，也可以看看。如果有`root`权限的话，可以去软件的`/data/data/包名`底下看看，有时候可以看到配置文件什么的。能够提供相关线索。
+
+而通过`objection`很方便就能得到相关目录。啥都有了，此时通过`ES文件浏览器`什么的去转一圈，总能发现好玩的。
+
+![image-20210624222217118](ck_mmzztt.assets/image-20210624222217118.png)
+
+尤其是这次，直接找到了软件缓存文件的地方，就是`Android/data/包名/`下
+
+![image-20210624221641554](ck_mmzztt.assets/image-20210624221641554.png)
+
+看到这个文件名和大小，就已经瞬间明白这个是什么了。通过图片的方式打开，果不其然就是缓存的图片。而其文件的命名，不用看也能知道是`32`位的`md5`。对这个东西已经太熟悉了。
+
+所以，接下来，就不需要考虑自己下载了，只需要通过代码找到操作缓存文件的地方即可，然后直接复制缓存文件，重命名即可得到"下载"的文件。
+
+### 找有价值的函数
+
+![image-20210624220518576](ck_mmzztt.assets/image-20210624220518576.png)
+
+没什么好说的，基本上反编译工具已经把类名和函数名反编译过来了，所以基本上把大概代码浏览一遍，发现这样明显的类了，接下来主要是验证类和函数了。基本思路就是通过`objection`对整个类的所有函数都下`hook`，然后再操作软件，看看会调用到哪个函数。确定函数价值。
+
+例如通过以下命令操作
+
+```Shell
+# 列出类的所有函数
+android hooking list class_methods com.uzmap.pkg.uzmodules.photoBrowserSu.PhotoBrowser
+
+# hook方法，列出其参数和返回值，还有堆栈
+android hooking watch class_method com.uzmap.pkg.uzmodules.photoBrowserSu.ImageBrowserAdapter.$init --dump-args --dump-backtrace --dump-return
+
+# hook整个类的所有方法
+android hooking watch class android.support.v4.view.PagerAdapter
+```
+
+列出类的所有函数，对比和`jadx`的结果，确保找到的类和方法是正确的，别像我一样傻乎乎的对着一堆不存在的方法下`hook`。
+
+`hook`方法的话，则能看到方法的返回值、参数、以及调用堆栈。前面两者肯定不用考虑非常重要，而对于堆栈，如果是想要分析软件类和方法的调用关系，则是非常好用的信息。能够帮你理清谁调用谁，通过这些信息，也能进一步推测反编译不出类名的类是干什么的。如果想要实现复杂的功能，可能确实需要明白目标软件是怎么工作的。
+
+而`hook`整个类的话，看不到方法的参数和返回值。但是能够帮忙确定类中哪个方法被调用了，也是非常重要的。能够一次性筛查出重要的类。
+
+
+
+### 获取url列表
+
+经过一番查找，发现软件工作原理是有一个缓存管理类。需要这张图片的话，就会问这个缓存管理类要，如果已经有缓存的图的话，直接返回路径，然后载入。否则的话，才会下载。但是经过简单看代码之后，并没有发现一个保存取`md5`文件名的数组，但是发现了这个
+
+![image-20210624230628010](ck_mmzztt.assets/image-20210624230628010.png)
+
+这个构造函数有一个参数是一个`ArrayList`通过`hook`这个函数，能够发现里面存的是原始的`url`。比较麻烦，但是咱们上面已经发现了文件名就是什么东西取了`md5`，是不是就是`url`取`md5`之后直接做文件名呢？
+
+`hook`函数之后，可以直接看到参数，对于`java`自带的类型，`objection`可以直接看到其内容。拿到第一个元素，取`md5`之后，对比其缓存的文件，确实发现了同名文件。所以，只需要对这个数组中的元素取`md5`就能在缓存目录找到对应的文件，之后复制走，加个后缀就能作为正常图片打开了。
+
+### 确定当前图片索引
+
+接下来就是要知道现在看的是哪张图片，首先引入眼帘的就是浏览界面的进度。但是该怎么找到它呢？
+
+![image-20210624231324273](ck_mmzztt.assets/image-20210624231324273.png)
+
+最快速的办法，就是通过布局文件找。
+
+通过`apktool`解包`apk`文件，之后得到了布局文件
+
+![image-20210624231515528](ck_mmzztt.assets/image-20210624231515528.png)
+
+结果如您所见，似乎并没有相关的布局数据。所以，考虑这部分可能是动态产生的布局。所以，没办法，还是得继续找代码。其实如果顺利的话，通过布局文件里面的`id`属性，能够直接找到对应的类，这样对这个类中的方法下`hook`就能直接获取到当前图片的索引了。
+
+依旧是上面的老办法，继续对可疑的类下钩子。最后发现了一个有用的方法
+
+![image-20210624231855129](ck_mmzztt.assets/image-20210624231855129.png)
+
+从名字上看，就能知道这个可能是用来设定当前看的这张图的索引的。第二个参数`position`，应该就是当前图片索引。对这个函数下断点
+
+![image-20210624232142901](ck_mmzztt.assets/image-20210624232142901.png)
+
+能够看到这个参数就是当前看到的图片的索引减一。那么它的值应该对应的就是数组的下标了。
+
+## 找到双击操作
+
+既然收集到了需要的数据，接下来只需要找到一个触发函数，把相关的复制文件的逻辑放进去，就完成了这个目标。找双击函数的思路，就是看`photobrower`这个类，因为软件可以双击放大。
+
+![image-20210624232855877](ck_mmzztt.assets/image-20210624232855877.png)
+
+找到了这个函数`onDoubleTap()`，但是，这个函数是一个匿名对象里面方法。并且我没有找到对应的`hook`方法，所以只能走偏方了。我注意到它几乎一定会执行`smoothScale()`函数，我只需要`hook`它就行了。
+
+至此，就通过`objection`找到了所有需要的函数，于是就可以开始写`xposed`模块了。
+
+## 升级功能的屏蔽
+
+对于这个，通过字符串搜索，确实找到了对应的配置类。但是下的钩子并没有被触发，因为软件是平台生成的，所以代码不被使用也很正常。后面分析发现，更新相关的方法名反编译失败了。也就是说，即使找到了对应的逻辑也不能正确的`hook`，这样的话就没有意义了。
+
+![image-20210624233906344](ck_mmzztt.assets/image-20210624233906344.png)
+
+但是也并不是没有办法了，观察这个升级框，点击返回什么的都不能关闭它，只能点击立即更新，之后就能继续使用软件了。但是会后台下载安装包，之后更新。不过在下载的时候也可以正常使用软件。所以，另一个思路就是让这个弹窗弹不出来。
+
+![image-20210624233935129](ck_mmzztt.assets/image-20210624233935129.png)
+
+通过分析布局文件，依旧是没找到对应的布局，也就找不到对应的类了。这样的话，只能通过别的方法了。考虑到动态的布局，最终也会是一个布局文件。所以，是否有办法把运行的界面布局`dump`出来呢？其实这个是最近使用`Autojs`软件的时候知道的功能。去百度了如何`dump`布局，果然通过`adb`是可以`dump`布局的。(实际上，`Android Studio`是有这样的功能的，但是一直失败，不清楚是为什么)
+
+下面两个命令需要进去`adb shell`
+
+```shell
+uiautomator dump /sdcard/ui.xml
+# 获取顶层的布局
+
+dumpsys window | grep  mCurrentFocus
+# 获取顶层的Activity
+```
+
+后者只有一开始发现的`com.uzmap.pkg.LauncherUI` 显然也是没什么用的。但是前者，其中发现了一些`id`，
+
+![image-20210624234943313](ck_mmzztt.assets/image-20210624234943313.png)
+
+众所周知，这个`id`是注册在`public.xml`这样的文件中的，找到了如下图这样的东西。后面的`id`是十六进制，转换成十进制，然后搜索`R.java`文件，就能找到具体是那里使用了这个布局。
+
+![image-20210624235036862](ck_mmzztt.assets/image-20210624235036862.png)
+
+最终发现，直接搜索`id`就能直接找到代码。。。转换进制什么的完全没有必要。。。
+
+![image-20210624235433486](ck_mmzztt.assets/image-20210624235433486.png)
+
+然后最终在附近的类中看到了下面这个方法
+
+![image-20210620113953432](ck_mmzztt.assets/image-20210620113953432.png)
+
+`hook`了之后，确定了这个就是弹出更新弹窗的方法。接下来，就可以开始正式开发`xposed`模块了
+
+
+
+## xposed模块
+
+先贴出代码
+
+
+
+
+
+```Java
+package com.example.startu.myapplication233;
+
+import android.app.Application;
+import android.content.Context;
+import android.os.Environment;
+import android.view.View;
+import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+
+import de.robv.android.xposed.IXposedHookLoadPackage;
+import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XC_MethodReplacement;
+import de.robv.android.xposed.XposedBridge;
+import de.robv.android.xposed.XposedHelpers;
+import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
+
+public class HookTest implements IXposedHookLoadPackage {
+
+    public void writefile(String str) throws Throwable{
+        String sdCardDir =Environment.getExternalStorageDirectory().getAbsolutePath();
+        File saveFile = new File(sdCardDir, "aaaa.txt");
+        FileOutputStream outStream = new FileOutputStream(saveFile,true);
+        outStream.write((str+"\n").getBytes());
+        outStream.close();
+    }
+
+    private static String getMD5(String info) {
+        try {
+            //获取 MessageDigest 对象，参数为 MD5 字符串，表示这是一个 MD5 算法（其他还有 SHA1 算法等）：
+            MessageDigest md5 = MessageDigest.getInstance("MD5");
+            //update(byte[])方法，输入原数据
+            //类似StringBuilder对象的append()方法，追加模式，属于一个累计更改的过程
+            md5.update(info.getBytes("UTF-8"));
+            //digest()被调用后,MessageDigest对象就被重置，即不能连续再次调用该方法计算原数据的MD5值。可以手动调用reset()方法重置输入源。
+            //digest()返回值16位长度的哈希值，由byte[]承接
+            byte[] md5Array = md5.digest();
+            //byte[]通常我们会转化为十六进制的32位长度的字符串来使用,本文会介绍三种常用的转换方法
+            return bytesToHex1(md5Array);
+        } catch (NoSuchAlgorithmException e) {
+            return "";
+        } catch (UnsupportedEncodingException e) {
+            return "";
+        }
+    }
+
+    private static String bytesToHex1(byte[] md5Array) {
+        StringBuilder strBuilder = new StringBuilder();
+        for (int i = 0; i < md5Array.length; i++) {
+            int temp = 0xff & md5Array[i];//TODO:此处为什么添加 0xff & ？
+            String hexString = Integer.toHexString(temp);
+            if (hexString.length() == 1) {//如果是十六进制的0f，默认只显示f，此时要补上0
+                strBuilder.append("0").append(hexString);
+            } else {
+                strBuilder.append(hexString);
+            }
+        }
+        return strBuilder.toString();
+    }
+
+    public void copyfile(File fromFile, File toFile,Boolean rewrite ) throws Throwable
+    {
+        if (!fromFile.exists()) {
+            return;
+        }
+        if (!fromFile.isFile()) {
+            return ;
+        }
+        if (!fromFile.canRead()) {
+            return ;
+        }
+        if (!toFile.getParentFile().exists()) {
+            toFile.getParentFile().mkdirs();
+        }
+        if (toFile.exists() && rewrite) {
+            toFile.delete();
+        }
+
+        try {
+            java.io.FileInputStream fosfrom = new java.io.FileInputStream(fromFile);
+            java.io.FileOutputStream fosto = new FileOutputStream(toFile);
+            byte bt[] = new byte[1024];
+            int c;
+            while ((c = fosfrom.read(bt)) > 0) {
+                fosto.write(bt, 0, c); //将内容写到新文件当中
+            }
+            fosfrom.close();
+            fosto.close();
+
+        } catch (Exception ex) {
+            writefile(ex.toString());
+        }
+    }
+
+    public void handleLoadPackage(final LoadPackageParam loadPackageParam) throws Throwable {
+        XposedBridge.log("Loaded app: " + loadPackageParam.packageName);
+        // writefile("启动包: "+loadPackageParam.packageName);
+        if (loadPackageParam.packageName.equals("com.mmzztt.app")) {
+            writefile("发现目标: "+loadPackageParam.packageName);
+            Class<?> clazz = XposedHelpers.findClass("com.stub.StubApp", loadPackageParam.classLoader);
+            // Class clazz = loadPackageParam.classLoader.loadClass("ceui.lisa.download.IllustDownload");
+            XposedHelpers.findAndHookMethod(clazz, "interface7",Application.class,Context.class, new XC_MethodHook() {
+                protected void beforeHookedMethod(XC_MethodHook.MethodHookParam param) throws Throwable {
+                    super.beforeHookedMethod(param);
+                    writefile("进入函数: ");
+                    Context context = (Context) param.args[1];
+                    //获取classloader，之后hook加固后的就使用这个classloader
+                    ClassLoader realClassLoader = context.getClassLoader();
+                    hookCheckoutXposed(realClassLoader,loadPackageParam);
+                    writefile("hook结束");
+                }
+
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    // param.setResult("你已被劫持");
+                    // writefile("新的图片:");
+                }
+            });
+        }
+    }
+
+    private ArrayList<String> mImagePaths;
+    private int pos;
+    private  String cache_files="/sdcard/Android/data/com.mmzztt.app/cache/UIPhotoViewer/";
+    private String mmttzz_files = "/sdcard/mmzztt/";
+    private boolean is_copy = false;
+    Context context;
+
+    public void hookCheckoutXposed(ClassLoader classLoader,final LoadPackageParam loadPackageParam) throws Throwable {
+        writefile("进入hook函数");
+
+        Class Context_c = loadPackageParam.classLoader.loadClass("android.content.Context");
+
+
+        // 获取 Context
+        XposedHelpers.findAndHookMethod("com.uzmap.pkg.uzcore.uzmodule.UZModule", classLoader, "initPlatform", Context_c, new XC_MethodHook() {
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                if(param.args[0] != null) {
+                    context = (Context)param.args[0];
+                    cache_files = context.getExternalCacheDir().getAbsolutePath() + "/UIPhotoViewer/";
+                    writefile("cache_files: "+cache_files);
+                }
+            }
+        });
+
+        XposedHelpers.findAndHookMethod("android.support.v4.view.PagerAdapter", classLoader, "setPrimaryItem", View.class,int.class,Object.class, new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if(param.args[1] == null){
+                    pos = 0;
+                }else{
+                    pos = (int)param.args[1];
+                }
+                is_copy = false;
+
+            }
+        });
+
+        XposedHelpers.findAndHookMethod("com.uzmap.pkg.uzmodules.photoBrowserSu.view.largeImage.LargeImageView", classLoader, "smoothScale", float.class,int.class,int.class, new XC_MethodHook() {
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                writefile("双击了");
+
+                String url = mImagePaths.get(pos);
+                if(url == null){
+                    Toast.makeText(context,"获取图片url失败",Toast.LENGTH_SHORT).show();
+                    return ;
+                }
+                String md5_string = getMD5(url);
+                String md5_name = md5_string+".jpg";
+                String file_name = md5_name;
+
+                writefile("定位"+pos+", 内容: " + url + ", md5: "+md5_string);
+
+                String[] l_list = url.split("/");
+                if(l_list != null){
+                    file_name = l_list[l_list.length-1];
+                }
+                writefile("file_name: "+file_name+", l_list.length: "+l_list.length);
+                if(!is_copy) {
+                    copyfile(new File(cache_files + md5_string), new File(mmttzz_files + file_name), true);
+                    Toast.makeText(context,"保存图片"+file_name,Toast.LENGTH_SHORT).show();
+                    is_copy = true;
+                }
+            }
+        });
+
+        Class UZModuleContext_c = loadPackageParam.classLoader.loadClass("com.uzmap.pkg.uzcore.uzmodule.UZModuleContext");
+        XposedHelpers.findAndHookMethod("com.apicloud.dialogBox.DialogBox", classLoader, "jsmethod_alert",UZModuleContext_c, new XC_MethodReplacement() {
+            @Override
+            protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+                writefile("禁止一个 alert弹窗");
+                Toast.makeText(context,"你是真的想更新嘛？",Toast.LENGTH_SHORT).show();
+                return null;
+            }
+        });
+
+        Class ImageLoader_c = loadPackageParam.classLoader.loadClass("com.uzmap.pkg.uzmodules.photoBrowserSu.ImageLoader");
+        Class ImageBrowserAdapter_c = loadPackageParam.classLoader.loadClass("com.uzmap.pkg.uzmodules.photoBrowserSu.ImageBrowserAdapter");
+
+        XposedHelpers.findAndHookConstructor(ImageBrowserAdapter_c, Context_c,UZModuleContext_c,ArrayList.class,ImageLoader_c,String.class,  new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                writefile("进入 ImageBrowserAdapter 的构造函数了");
+                try {
+                    mImagePaths = (ArrayList<String>) param.args[2];
+//                    for(int i=0;i<mImagePaths.size();i++){
+//                        writefile(mImagePaths.get(i));
+//                    }
+                    writefile("数组长度: " + mImagePaths.size());
+                }catch (Exception e){
+                    writefile(e.toString());
+                }
+            }
+        });
+    }
+}
+
+```
+
 
 
 ## dump dex
@@ -262,5 +625,5 @@ adb forward tcp:27043 tcp:27043
 
 + 禁止弹窗
 
-  ![image-20210620113953432](ck_mmzztt.assets/image-20210620113953432.png)
+  
 
