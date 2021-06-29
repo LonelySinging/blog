@@ -147,3 +147,82 @@ alias psu="ps aux | grep \"^`id -u` \""
 + `id -u`将会获取到自己的用户`uid` 
 + `^`表示匹配自己`uid`开头的条目
 + 最后还有一个空格不能少，否则会把包含你`uid`的别人的进程也显示出来
+
+## 命令提示符修改
+
+```Shell
+export PS1='\[\e[31;1m\][\u@\[\e[32;1m\]\h \[\e[32;1m\]\W]\$ \[\e[0m\]'
+```
+
+将会得到
+
+![image-20210629125123739](https://qiniusave.xint.top/mdimage-20210629125123739.png)
+
+## 快捷搜索
+
+```shell
+alias f="find . -name"
+```
+
+使用的时候直接使用`f main.cpp`就能快速找到需要的文件了
+
+## 文本搜索
+
+对于`grep`来说，需要传递多个参数，这个时候就不能通过`alias`了，这时候可以选择使用`function` 也是添加到`.bashrc`文件中
+
+```shell
+function gp(){
+	if [ $# -eq 0 ];then
+		echo "Use: gp <string>"
+	else
+		grep -Irn "$1" *
+	fi
+}
+
+function gpv(){
+	if [ $# -eq 0 ];then
+		echo "Use: gpv <string>"
+	else
+		grep -v "$1"
+	fi
+}
+```
+
+一般的使用方式是`gp main(` 就能在当前目录和子目录中找到相应的文件，如果配合`gpv`则这么用 `gp "main" | gpv "tags"` ，就能过滤掉带有`tags`的行。还是比较好用的。
+
+## 记忆一个目录
+
+经常会一次打开很多个终端，会有保持两个终端工作路径相同的需求。此时可以这么写
+
+```shell
+alias cdc="pwd > ~/.cdc"
+alias cdd="cd \`cat ~/.cdc\`"
+```
+
+假如第一个终端，`cd /etc/vim` 进入了一个目录，然后执行`cdc`
+
+第二个终端执行`cdd`就能直接切换到和第一个终端一样的工作路径 当然，也能写个脚本实现记忆更多，比如记忆常用的工作目录，这个功能有时间再完成吧
+
+
+
+## VIM的设置
+
+```shell
+syntax on
+colorscheme molokai
+set nu
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set expandtab
+set autoindent
+
+set fileencoding=utf-8
+set fileencodings=ucs-bom,cp936,GBK,GB2312,windows-1252
+set termencoding=utf-8
+```
+
+这个设置是我在公司用的上古`vim 7.0`的配置，一般来说，最新版本的 `vim`完全不需要考虑这些。。。
+
+也就需要打开行号显示，还有`tabstop`默认是8比较不习惯需要设置
+
