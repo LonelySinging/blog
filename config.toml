@@ -94,9 +94,9 @@ publishdir = "../public"
   # You can get your appid and appkey from https://leancloud.cn
   # more info please open https://valine.js.org
   [params.valine]
-    enable = true
-    appId = 'pUNgWdq63TETAke7FQXlzsGA-MdYXbMMI'
-    appKey = 'j1XWiWeAW0TJ4gvQbDgyPiTO'
+    enable = false
+    appId = ''
+    appKey = ''
     notify = false  # mail notifier , https://github.com/xCss/Valine/wiki
     verify = false # Verification code
     avatar = 'mm'
