@@ -1,7 +1,9 @@
 ---
-title: "Kconnect使用sftp 自定义协议"
+title: "Kconnect使用sftp windows自定义协议"
 date: 2021-09-14T08:29:14+08:00
-draft: true
+draft: false
+tags: ["折腾","Android","Kconnect","局域网","windows"]
+categories: ["折腾"]
 ---
 
 
@@ -20,9 +22,9 @@ draft: true
 
 但是问题来了，`kconnect`在点击浏览文件之后会弹出一个框
 
-![image-20210916080729822](register_sftp.assets/image-20210916080729822.png)
+![image-20210916080729822](https://qiniusave.xint.top/mdimage-20210916080729822.png)
 
-![image-20210916080751405](register_sftp.assets/image-20210916080751405.png)
+![image-20210916080751405](https://qiniusave.xint.top/mdimage-20210916080751405.png)
 
 直观的第一个感觉就是软件打开了一个`sftp://`的链接，但是因为我的电脑没有注册`sftp://`协议，以至于没有对应的软件被打开。
 
@@ -77,13 +79,13 @@ passwordAuth.password = RandomHelper.randomString(28);
 
 众所周知，注册表就是操作系统的配置中心，那么里面肯定会有`thunder`这样的关键字，通过`win+r`运行`regedit`打开注册表编辑器，然后搜索`thunder`
 
-![image-20210916082815571](register_sftp.assets/image-20210916082815571.png)
+![image-20210916082815571](https://qiniusave.xint.top/mdimage-20210916082815571.png)
 
 出现很多这样的结果，例如上面这个应该就是右键菜单。继续搜索，直到看到了一个可疑的项。搜索过程中，逐渐发现`HKEY_CLASSES_ROOT`这个项里面都是指定什么协议或者什么文件由什么程序处理类似的的信息。
 
 最终找到了下面的信息，一目了然
 
-![image-20210916083225240](register_sftp.assets/image-20210916083225240.png)
+![image-20210916083225240](https://qiniusave.xint.top/mdimage-20210916083225240.png)
 
 简单解释就是，浏览器的地址栏输入`thunder://xxxxx`这样的链接之后，去执行`Thunder.exe`这个程序，并且传递参数，`%1`和`-StartType:thunder`其中前者是个变量类似于`Linux`函数中的`$1`，代表的是`thunder://`后面的字符串。再加上第二个参数，`Thunder.exe`就能知道用户是通过`thunder://`协议想要下载`xxxxxx`链接的文件。
 
@@ -97,7 +99,7 @@ passwordAuth.password = RandomHelper.randomString(28);
 
 ## 注册sftp协议
 
-根据我的经验，最好的办法就是，把`thunder`协议的配置信息导出，然后修改成自己的就行了
+根据我的经验，最好的办法就是，把`thunder`协议的配置信息导出，然后修改成自己的就行了，否则哪个地方出错了会比较烦人。
 
 ```ini
 Windows Registry Editor Version 5.00
@@ -134,7 +136,7 @@ Windows Registry Editor Version 5.00
 
 现在另存为`sftp.reg`，双击导入到注册表。现在再通过`kconect`位于右下角托盘图标右键的`浏览设备`就能直接打开`FileZilla`了，并且能直接连接上手机了。
 
-![image-20210916084902145](register_sftp.assets/image-20210916084902145.png)
+![image-20210916084902145](https://qiniusave.xint.top/mdimage-20210916084902145.png)
 
 顺利的不可思议。。。感谢伟大的`FileZilla`，开源免费真的是太好了。
 
