@@ -157,3 +157,16 @@ alias psu="ps aux | grep \"^`id -u` \""
 `du -h --max-depth=0 *`可以弥补`ps`没有不能直接看到所有文件夹占用大小的问题
 
 另外，通过`du -sh ~` 可以看到自己的`home`目录占用了多少空间
+
+
+
+## PS1
+
+```shell
+export PS1="\[\e[31;1m\][\u@\[\e[32;1m\]\h \[\e[32;1m\]\W]\$ \[\e[0m\]"
+```
+
+![image-20210629125123739](https://qiniusave.xint.top/mdimage-20210629125123739.png)
+
+效果如上图所示
+
