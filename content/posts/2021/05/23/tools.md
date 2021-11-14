@@ -124,7 +124,7 @@ Downloading https://github.com/git-for-windows/git/releases/download/v2.31.1.win
 已成功安装
 ```
 
-然后，直接就安装好了，唯一的问题就是不能实现卸载... 只能自己手动卸载。不过好在也不是什么麻烦的事情。
+然后，直接就安装好了，唯一的问题就是不能实现卸载...(新版`winget`好像有卸载选项了) 只能自己手动卸载。不过好在也不是什么麻烦的事情。
 
 
 
@@ -133,3 +133,25 @@ Downloading https://github.com/git-for-windows/git/releases/download/v2.31.1.win
 
 + 应用商店 (浏览器打开)
   + ms-windows-store://pdp/?productid=9nblggh4nns1
+
+## leanote
+
+蚂蚁笔记，开源的笔记系统，自带一个博客系统。支持`markdown`编写，`windows、linux、android`都有客户端，当然也有网页支持，**支持自建服务器**
+
+安装方法[Leanote 二进制版详细安装教程 Mac and Linux · leanote/leanote Wiki (github.com)](https://github.com/leanote/leanote/wiki/Leanote-二进制版详细安装教程----Mac-and-Linux)
+
+
+
+## nextcloud
+
+支持自建服务器的的个人网盘，但是实际上不只是一个网盘，功能巨多。各个平台都有客户端，支持文件同步。
+
+[nextcloud/server: ☁️ Nextcloud server, a safe home for all your data (github.com)](https://github.com/nextcloud/server)
+
+
+
+## httrack
+
+整站下载工具 可以把整个网站搬下来，用来保存各类开发手册很方便
+
+[Download HTTrack Website Copier 3.49-2 - HTTrack Website Copier - Free Software Offline Browser (GNU GPL)](http://www.httrack.com/page/2/)
