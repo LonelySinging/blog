@@ -55,7 +55,7 @@ sm.ms图床有限制
 1. 简单分析之后，决定使用sm.ms ,因为这个网址没有对接口做演示，且官方也放出了api,并且也没有什么限制
 2. 上传文件之后它请求了这个接口
 
-![image-20200228114035021](https://qiniusave.5cser.com/img/dPvhbAXFLuCkDjH.png)
+![image-20200228114035021](https://qiniusave.xint.top/img/dPvhbAXFLuCkDjH.png)
 
 3. 并且返回了一个json 数据是图片的url (这么老实的图床，感觉白嫖的良心痛，但是也不能一直白嫖吧)
 4. 写了python 代码测试了一下接口，确实可用
@@ -95,7 +95,7 @@ print(uploadImg('2.png'))
 5. 那后面就是，正则匹配图片链接，然后，通过上面的自定义函数得到图片在图床的url,再替换到md文件中即可
 6. 最后效果
 
-![image-20200228114705882](https://qiniusave.5cser.com/img/l8zqLFwbVBgu1AK.png)
+![image-20200228114705882](https://qiniusave.xint.top/img/l8zqLFwbVBgu1AK.png)
 
 7. 此时文件中的链接被替换成了图床链接，这时候文档复制到哪里都行了，不过为了防止图床炸掉，还是在本地保存了一份 (将typroa 图片设置为复制到文档同目录就好了)
 8. 最后贴出全部代码
@@ -170,7 +170,7 @@ if __name__ == '__main__':
 	
 最后使用fiddler 抓包，终于发现了数据
 
-![image-20200228115610372](https://qiniusave.5cser.com/img/2x8zWlfCcyQwi7E.png)
+![image-20200228115610372](https://qiniusave.xint.top/img/2x8zWlfCcyQwi7E.png)
 
 显然是加密的，但是如何做到 `dev-tool`不显示，还真的不知道的骚操作
 	

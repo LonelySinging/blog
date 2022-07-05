@@ -36,7 +36,7 @@ categories: ["逆向分析"]
 
 众所周知，APK的本质就是zip文件，所以我们通过更改apk文件后缀名为.zip，使用压缩软件解压的方式得到dex文件。
 
-![image-20210528162754720](https://qiniusave.5cser.com/mdimage-20210528162754720.png)
+![image-20210528162754720](https://qiniusave.xint.top/mdimage-20210528162754720.png)
 
 可以看到解压之后有classes.dex文件，dex文件就是apk文件真正的可执行文件，具体的代码逻辑都在这个里面，其他的不是此次的重点。另外提一嘴，如果想要得到apk的AndroidManifest.xml文件，需要使用apktool工具，通过查看这个文件可以得到apk需要的权限，以及入口类在哪里。不过直接解压得到的AndroidManifest.xml文件是加密的，这时候就可以使用apktool工具解包apk，能够得到AndroidManifest.xml明文，并且apktool直接把dex反编译成了smali文件(相当于java的汇编)。但是实际上，我认为这是一个令人智熄的操作。因为已经有了更好的解决方法
 
@@ -48,7 +48,7 @@ categories: ["逆向分析"]
 
 [pxb1988/dex2jar: Tools to work with android .dex and java .class files (github.com)](https://github.com/pxb1988/dex2jar)
 
-![image-20210528165200296](https://qiniusave.5cser.com/mdimage-20210528165200296.png)
+![image-20210528165200296](https://qiniusave.xint.top/mdimage-20210528165200296.png)
 
 只需要把dex文件拖到dex2jar.bat文件上，就能得到类似于`classes-dex2jar.jar`这样的jar包了
 
@@ -64,7 +64,7 @@ categories: ["逆向分析"]
 
 工具链接[Java Decompiler (java-decompiler.github.io)](https://java-decompiler.github.io/)
 
-![image-20210528173409317](https://qiniusave.5cser.com/mdimage-20210528173409317.png)
+![image-20210528173409317](https://qiniusave.xint.top/mdimage-20210528173409317.png)
 
 直接将代码拖到jd-gui的窗口上，就能看到代码了。经过jd-gui反编译的代码非常清晰，甚至保留了符号名这样非常有利于分析程序代码。
 
@@ -80,7 +80,7 @@ categories: ["逆向分析"]
 
 经过浏览代码。我看到了以下几个类
 
-![image-20210528174400384](https://qiniusave.5cser.com/mdimage-20210528174400384.png)
+![image-20210528174400384](https://qiniusave.xint.top/mdimage-20210528174400384.png)
 
 大概需要的函数就在这里了，上面一些类似乎并没有正常的反编译下来，不清楚是通过什么手段实现的。简单浏览代码之后，目光锁定到了下面这个函数
 
@@ -182,7 +182,7 @@ chmod +x ./frida
 
 并且执行，程序没有任何输出，是正常的
 
-![image-20210528161520012](https://qiniusave.5cser.com/mdimage-20210528161520012.png)
+![image-20210528161520012](https://qiniusave.xint.top/mdimage-20210528161520012.png)
 
 #### 链接Frida
 
@@ -201,7 +201,7 @@ frida-ps -U
 
 应该能得到下图的结果 ceui.lisa.pixiv就是此次的目标
 
-![image-20210528161601553](https://qiniusave.5cser.com/mdimage-20210528161601553.png)
+![image-20210528161601553](https://qiniusave.xint.top/mdimage-20210528161601553.png)
 
 ## 编写脚本
 
@@ -259,7 +259,7 @@ process = frida.get_remote_device().attach('ceui.lisa.pixiv')
 
 最后，在安卓程序中操作，触发对应函数的调用即可。如下是运行结果，已经拿到了图片的url，很赞，已经开心的说不出话了。
 
-![image-20210528161452351](https://qiniusave.5cser.com/mdimage-20210528161452351.png)
+![image-20210528161452351](https://qiniusave.xint.top/mdimage-20210528161452351.png)
 
 
 

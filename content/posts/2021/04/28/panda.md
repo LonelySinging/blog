@@ -18,7 +18,7 @@ categories : ["逆向分析"]
 
 ---
 
-![image-20200315141531736](https://qiniusave.5cser.com/img/image-20200315141531736.png)
+![image-20200315141531736](https://qiniusave.xint.top/img/image-20200315141531736.png)
 
 Delphi的程序 但是以前没有写过也没有逆向过Delphi程序
 
@@ -30,24 +30,24 @@ Delphi的程序 但是以前没有写过也没有逆向过Delphi程序
 
 先设置好虚拟机环境，把`文件后缀名`,`显示隐藏文件`也打开，这样就能显示所有东西了
 
-![image-20200315143342865](https://qiniusave.5cser.com/img/image-20200315143342865.png)
+![image-20200315143342865](https://qiniusave.xint.top/img/image-20200315143342865.png)
 
 1. 任务管理器被关闭了，再打开的时候已经打不开了
 2. 另外，火绒剑也没了... 卧槽，这个不是老病毒了么，怎么火绒剑还会被关闭？
 3. 进入C盘，因为设置了隐藏文件可见的原因，看到了这两个文件，从大小来看，初步判断setup.exe就是病毒本身副本，autorun.inf的目的就是为了让`开启了自动播放`的用户打开磁盘的时候运行setup.exe
-   1. ![image-20200315141929633](https://qiniusave.5cser.com/img/image-20200315141929633.png)
-   2. ![image-20200315142139944](https://qiniusave.5cser.com/img/image-20200315142139944.png)
+   1. ![image-20200315141929633](https://qiniusave.xint.top/img/image-20200315141929633.png)
+   2. ![image-20200315142139944](https://qiniusave.xint.top/img/image-20200315142139944.png)
 
 4. 稍后桌面出现了一个ini文件
-   1. ![image-20200315143725176](https://qiniusave.5cser.com/img/image-20200315143725176.png)
+   1. ![image-20200315143725176](https://qiniusave.xint.top/img/image-20200315143725176.png)
    2. 内容是感染日期，不过听说病毒会设置隐藏文件不可见... 但是我怎么能看到呢
 5. 于是去看了文件夹设置，发现单选框没有被选择上，设置显示所有隐藏文件
 6. 结果桌面一个刷新所有的隐藏文件都看不到了，再进入设置，发现被改回来了
-   1. ![image-20200315144108599](https://qiniusave.5cser.com/img/image-20200315144108599.png)
+   1. ![image-20200315144108599](https://qiniusave.xint.top/img/image-20200315144108599.png)
    2. 再也改不回来了
 7. 看到exe文件图标都变成 熊猫烧香的图标了
 8. 虽然不能看到隐藏文件，但是还有办法
-   1. ![image-20200315144314101](https://qiniusave.5cser.com/img/image-20200315144314101.png)
+   1. ![image-20200315144314101](https://qiniusave.xint.top/img/image-20200315144314101.png)
    2. 通过 `dir /a` 命令 还是能看到被隐藏起来的 `Desktop_.ini` 文件
 9. 因为火绒剑被关闭了的原因，已经不能知道更多信息了，但是为什么一个老病毒能关闭火绒剑呢？一般不都是黑名单方式检测，然后关闭，这病毒出来的时候火绒剑还没有出现的吧。。。
 10. 不过后面想想，这个病毒似乎已经开源了，很多人都写了，所以我手上的样本不一定是原版，有人给他升级了？
@@ -58,15 +58,15 @@ Delphi的程序 但是以前没有写过也没有逆向过Delphi程序
 
 因为是Delphi程序的关系，这里需要IDR来查看字符串
 
-![image-20200315145550526](https://qiniusave.5cser.com/img/image-20200315145550526.png)
+![image-20200315145550526](https://qiniusave.xint.top/img/image-20200315145550526.png)
 
 1. 这里可以看到很多奇奇怪怪的字符串
 2. 有关于文件名的，还有一个cmd命令，是应该打开分享的
 3. 注册表路径
 4. 还有一些弱口令
-   1. ![image-20200315145744696](https://qiniusave.5cser.com/img/image-20200315145744696.png)
+   1. ![image-20200315145744696](https://qiniusave.xint.top/img/image-20200315145744696.png)
 5. 以及各种进程名
-   1. ![image-20200315145837101](https://qiniusave.5cser.com/img/image-20200315145837101.png)
+   1. ![image-20200315145837101](https://qiniusave.xint.top/img/image-20200315145837101.png)
    2. 但是我没有找到火绒啊(/(ㄒoㄒ)/~~) 所以为什么会被干掉
 6. 还有文件路径，以及一大堆的乱七八糟的字符，看着像乱码
 7. 那么就可以猜测，
@@ -209,14 +209,14 @@ Delphi的程序 但是以前没有写过也没有逆向过Delphi程序
 
 ### 主函数
 
-![image-20200315153459262](https://qiniusave.5cser.com/img/image-20200315153459262.png)
+![image-20200315153459262](https://qiniusave.xint.top/img/image-20200315153459262.png)
 
 1. 首先验证了字符串，其实没看懂这步是干嘛的，还对字符串进行了加密（难道是为了避免特征值?）
 2. 接着就是三个函数
 3. 第一个函数 sub_4082F8
    1. 把自己复制到 `C:\Windows\System32\drivers\spcolsv.exe` (似乎还做了一定的校验)
 4. 第二个函数 sub_40CFB4
-   1. ![image-20200315154633174](https://qiniusave.5cser.com/img/image-20200315154633174.png)
+   1. ![image-20200315154633174](https://qiniusave.xint.top/img/image-20200315154633174.png)
    2. sub_40A7EC 创建一个线程用来感染文件
    3. sub_40C5B0 是一个定时器，每六秒钟执行一次，功能是保证setup.exe autorun.inf文件的存在
    4. sub_40BD08 会扫描局域网，如果可能，就把远程主机磁盘映射到本地
@@ -260,7 +260,7 @@ Delphi的程序 但是以前没有写过也没有逆向过Delphi程序
 
 每隔六秒执行一次下面的逻辑
 
-![image-20200315174758220](https://qiniusave.5cser.com/img/image-20200315174758220.png)
+![image-20200315174758220](https://qiniusave.xint.top/img/image-20200315174758220.png)
 
 #### 搜索局域网主机 sub_40BD08
 
@@ -274,10 +274,10 @@ Delphi的程序 但是以前没有写过也没有逆向过Delphi程序
 
 1. 通过函数 sub_406F3C 创建了一个线程，功能如下
    1. 遍历所有窗口，获取他们的标题，如果含有以下内容，则发送 `WM_QUIT`消息试图关闭它
-      1. ![image-20200315175949777](https://qiniusave.5cser.com/img/image-20200315175949777.png)
+      1. ![image-20200315175949777](https://qiniusave.xint.top/img/image-20200315175949777.png)
    2. 还会通过虚拟按键的方式关闭安全软件
    3. 终结以下下进程
-      1. ![image-20200315180231742](https://qiniusave.5cser.com/img/image-20200315180231742.png)
+      1. ![image-20200315180231742](https://qiniusave.xint.top/img/image-20200315180231742.png)
    4. 编辑注册表键值 实现自启动，以及文件隐藏
       1. `Software\Microsoft\Windows\CurrentVersion\Run`
       2. `SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Folde`
@@ -303,7 +303,7 @@ Delphi的程序 但是以前没有写过也没有逆向过Delphi程序
 
 #### 未知的定时器函数
 
-![image-20200315181029046](https://qiniusave.5cser.com/img/image-20200315181029046.png)
+![image-20200315181029046](https://qiniusave.xint.top/img/image-20200315181029046.png)
 
 这里可能还是一个定时器函数，但是IDA没有解释出来，具体是什么功能暂时不知道
 
@@ -321,11 +321,11 @@ Delphi的程序 但是以前没有写过也没有逆向过Delphi程序
 
 最后跟了一个被感染文件的大小
 
-![image-20200315182935175](https://qiniusave.5cser.com/img/image-20200315182935175.png)
+![image-20200315182935175](https://qiniusave.xint.top/img/image-20200315182935175.png)
 
 
 
-![image-20200312164829044](https://qiniusave.5cser.com/img/image-20200312164829044.png)
+![image-20200312164829044](https://qiniusave.xint.top/img/image-20200312164829044.png)
 
 我以为会添加节区啊啥的... 居然如此暴力, 学到了 啧~
 
@@ -335,13 +335,13 @@ Delphi的程序 但是以前没有写过也没有逆向过Delphi程序
 
 会在 htm、html、asp、php、jsp、aspx 文件后面追加内容，我在C盘根目录下放一个空的html文件骗到内容如下
 
-![image-20200315195516581](https://qiniusave.5cser.com/img/image-20200315195516581.png)
+![image-20200315195516581](https://qiniusave.xint.top/img/image-20200315195516581.png)
 
 URL现在指向一个。。。 广告页面？
 
-![image-20200315195821012](https://qiniusave.5cser.com/img/image-20200315195821012.png)
+![image-20200315195821012](https://qiniusave.xint.top/img/image-20200315195821012.png)
 
-![image-20200315200020927](https://qiniusave.5cser.com/img/image-20200315200020927.png)
+![image-20200315200020927](https://qiniusave.xint.top/img/image-20200315200020927.png)
 
 > panda VPN? 怕不是病毒作者的新网站？
 
@@ -377,5 +377,5 @@ URL现在指向一个。。。 广告页面？
 
 ## delphi 函数调用约定
 
-![image-20200308003405472](https://qiniusave.5cser.com/img/image-20200308003405472.png)
+![image-20200308003405472](https://qiniusave.xint.top/img/image-20200308003405472.png)
 

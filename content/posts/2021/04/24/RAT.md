@@ -16,11 +16,11 @@ categories = ["逆向分析"]
 
 # PEID
 
-![image-20200409170429252](https://qiniusave.5cser.com/img/image-20200409170429252.png)
+![image-20200409170429252](https://qiniusave.xint.top/img/image-20200409170429252.png)
 
 > 应该是C/C++开发的，节表四个很正常
 
-![image-20200409170541686](https://qiniusave.5cser.com/img/image-20200409170541686.png)
+![image-20200409170541686](https://qiniusave.xint.top/img/image-20200409170541686.png)
 
 > 透明图标，大小136KB 139,264 字节
 
@@ -28,7 +28,7 @@ categories = ["逆向分析"]
 
 # 火绒剑
 
-![image-20200409171108334](https://qiniusave.5cser.com/img/image-20200409171108334.png)
+![image-20200409171108334](https://qiniusave.xint.top/img/image-20200409171108334.png)
 
 >  没有其他多余的操作,打开之后直接开始尝试连接主机
 >
@@ -89,7 +89,7 @@ nmap认为91%可能是linux ,但是我感觉还是windows server，一般来说 
 
 ## wrieShark
 
-![image-20200409172145543](https://qiniusave.5cser.com/img/image-20200409172145543.png)
+![image-20200409172145543](https://qiniusave.xint.top/img/image-20200409172145543.png)
 
 > 可以看到，程序尝试连接服务端 但是 服务端返回了 RST 标志，那么服务端可能没有运行
 
