@@ -161,6 +161,14 @@ print(get_rate(r"C:\Users\Administrator\Documents\1\视频\001.mp4"))
 
 
 
+# 压缩图片
+
+`ffmpeg -i p.jpg -q 1000 p2.jpg`
+
+目前测试只有`jpg文件`可以压缩，`-q`参数约大压缩程度越高
+
+
+
 ---
 
 总之，`ffmpeg`的使用是一个相当复杂的事情，需要花很久去研究参数，上面只是一些简单的参数，执行了`ffmpeg -h encoder=libx264`这样的帮助命令之后就知道其内容有多恐怖了，而这个命令显示的还只是一个编码器的参数。。。
