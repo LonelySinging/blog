@@ -1,7 +1,7 @@
 ---
 title: "ffmpeg 使用记录"
 date: 2021-10-11T08:41:32+08:00
-draft: false
+draft: true
 tags: ["ffmpeg","视频相关","windows"]
 categories: ["折腾"]
 ---

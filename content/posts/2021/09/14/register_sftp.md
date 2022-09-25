@@ -1,7 +1,7 @@
 ---
 title: "Kconnect使用sftp windows自定义协议"
 date: 2021-09-14T08:29:14+08:00
-draft: false
+draft: true
 tags: ["折腾","Android","Kconnect","局域网","windows"]
 categories: ["折腾"]
 ---
